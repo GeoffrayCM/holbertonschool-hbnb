@@ -5,7 +5,7 @@ flowchart TB
 %% ========= PRESENTATION LAYER =========
 subgraph P["Presentation Layer"]
   direction TB
-  API["API / Endpoints(Controllers / Routes)"]
+  API["API / Endpoints(Controllers / Routes)"_.
   SVC["Services(Request handling)"]
   API --> SVC
 end
