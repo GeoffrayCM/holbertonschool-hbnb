@@ -299,7 +299,7 @@ Part 3 → SQLAlchemy remplacera InMemoryRepository.
 
 ---
 
-# ⚠️ Points sensibles à connaître à l’oral
+# ⚠️ Points sensibles
 
 - UUID stocké en string
 - update() met à jour updated_at
