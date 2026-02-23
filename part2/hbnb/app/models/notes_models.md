@@ -90,7 +90,7 @@ Met à jour updated_at.
 
 ---
 
-## Questions orales possibles
+## Questions
 
 Pourquoi ne pas mettre cette logique dans chaque classe ?
 → DRY principle (Don't Repeat Yourself).
@@ -136,7 +136,7 @@ Ici :
 
 ---
 
-## Questions orales
+## Questions
 
 Pourquoi l’unicité ne devrait pas être dans le modèle en production ?
 → Cela appartient à la persistence layer (DB constraint).
@@ -220,7 +220,7 @@ add_amenity(amenity)
 
 ---
 
-## Questions orales
+## Questions
 
 Pourquoi stocker les relations en listes ?
 → Simplicité avant base de données.
