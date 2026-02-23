@@ -70,7 +70,7 @@ print(user.created_at)
 user.update({"first_name": "Jane", "is_admin": True})
 print(user.updated_at)
 ---
-
+```
 # 🏠 Place
 
 ## Attributes
@@ -115,7 +115,7 @@ place = Place(
 )
 
 print(place.title)
-
+```
 # ⭐ Review
 
 ## Attributes
@@ -157,7 +157,7 @@ place.add_review(review)
 print(len(place.reviews))  
 
 ---
-
+```
 # 🛎 Amenity
 
 ## Attributes
@@ -192,3 +192,4 @@ place.add_amenity(wifi)
 place.add_amenity(parking)
 
 print([a.name for a in place.amenities])  # ["Wi-Fi", "Parking"]
+```
