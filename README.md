@@ -18,7 +18,7 @@ This phase includes:
 
 The purpose of this phase is to establish a clear technical blueprint that will guide the implementation stages of the HBnB project.
 
-# 🚀 Part 2 – Business Logic & API Foundation
+# Part 2 – Business Logic & API Foundation
 
 In Part 2 of the HBnB project, the application transitions from architectural design to concrete implementation.
 
