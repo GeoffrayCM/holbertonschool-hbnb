@@ -53,7 +53,7 @@ class Place(BaseModel):
         if not isinstance(value, (int, float)):
             raise ValueError("price must be a number")
         price = float(value)
-        if price <= 0:
+        if price < 0:
             raise ValueError("price must be a positive value")
         self.price = price
 
