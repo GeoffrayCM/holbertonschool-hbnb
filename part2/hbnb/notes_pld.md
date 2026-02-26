@@ -48,7 +48,7 @@ Exemple :
 @app.route("/users")
 def users():
     return "Hello"
-
+```
 Quand un client appelle /users, Flask exécute la fonction correspondante.
 
 Une route définit :
