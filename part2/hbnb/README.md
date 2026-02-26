@@ -193,3 +193,306 @@ place.add_amenity(parking)
 
 print([a.name for a in place.amenities])  # ["Wi-Fi", "Parking"]
 ```
+
+---
+
+# 🌐 Presentation Layer & Facade – API Endpoints
+
+## 📌 Overview
+
+After implementing the Business Logic layer (Models), the second major step of Part 2 consists of exposing this logic through a RESTful API using **Flask** and **Flask-RESTx**, while ensuring clean separation of concerns.
+
+This is achieved through:
+
+- A **Facade layer** that centralizes all business interactions.
+- A **Presentation layer (API)** that handles HTTP requests and responses.
+- A structured use of **Namespaces**, **Resources**, and **Models** in Flask-RESTx.
+- Consistent HTTP status codes and JSON responses.
+
+The API does **not** interact directly with the models or repositories.  
+All communication goes through the `HBnBFacade`.
+
+---
+
+# 🏛 HBnBFacade (Service Layer)
+
+## 🎯 Role
+
+The `HBnBFacade` class acts as a mediator between:
+
+- The API (Presentation Layer)
+- The Business Logic (Models)
+- The Persistence Layer (Repository)
+
+It:
+
+- Creates entities
+- Retrieves entities
+- Updates entities
+- Deletes reviews
+- Validates relationships (User ↔ Place ↔ Review ↔ Amenity)
+- Ensures data integrity before persistence
+
+The facade holds repository instances:
+
+- `user_repo`
+- `place_repo`
+- `amenity_repo`
+- `review_repo`
+
+Each repository is an instance of `InMemoryRepository`.
+
+---
+
+## 🔁 Why Use a Facade?
+
+Without the facade:
+
+- The API would directly manipulate repositories.
+- Validation logic would be duplicated.
+- Relations would be inconsistently handled.
+
+With the facade:
+
+- All coordination logic is centralized.
+- The API remains clean and focused on HTTP handling.
+- The persistence layer can be replaced later without changing the API.
+
+---
+
+# 👤 User Endpoints
+
+## Implemented Endpoints
+
+- `POST /api/v1/users/`
+- `GET /api/v1/users/`
+- `GET /api/v1/users/<user_id>`
+- `PUT /api/v1/users/<user_id>`
+
+## Responsibilities
+
+### POST
+- Validate request body via RESTx
+- Check email uniqueness
+- Call `facade.create_user()`
+- Return `201 Created`
+
+### GET (list)
+- Call `facade.get_users()`
+- Return list of serialized users
+
+### GET (by id)
+- Call `facade.get_user(user_id)`
+- Return `404` if not found
+
+### PUT
+- Validate existence
+- Call `facade.update_user()`
+- Return updated user
+
+---
+
+# 🛎 Amenity Endpoints
+
+## Implemented Endpoints
+
+- `POST /api/v1/amenities/`
+- `GET /api/v1/amenities/`
+- `GET /api/v1/amenities/<amenity_id>`
+- `PUT /api/v1/amenities/<amenity_id>`
+
+## Differences Compared to User
+
+- No uniqueness constraint required.
+- Simpler entity (no direct relationship validation here).
+- Used later by Place for many-to-many relationship.
+
+---
+
+# 🏠 Place Endpoints
+
+## Implemented Endpoints
+
+- `POST /api/v1/places/`
+- `GET /api/v1/places/`
+- `GET /api/v1/places/<place_id>`
+- `PUT /api/v1/places/<place_id>`
+
+## Special Logic for Place
+
+Place introduces relationships:
+
+- One-to-many: User → Places
+- Many-to-many: Place ↔ Amenities
+- One-to-many: Place → Reviews
+
+### POST Place
+
+Requires:
+
+- owner_id (must exist)
+- amenities (list of amenity IDs)
+
+Facade responsibilities:
+
+1. Retrieve owner via `user_repo`
+2. Retrieve amenities via `amenity_repo`
+3. Validate price, latitude, longitude
+4. Create Place object
+5. Attach amenities
+6. Store in `place_repo`
+
+Returns `201 Created`.
+
+---
+
+### GET Place (detail)
+
+Returns enriched data:
+
+- Basic fields
+- Owner object (nested)
+- Amenities list (nested)
+- Reviews list (nested)
+
+Requires custom serialization logic.
+
+---
+
+# ⭐ Review Endpoints
+
+Review is the most complex entity in Part 2.
+
+## Implemented Endpoints
+
+- `POST /api/v1/reviews/`
+- `GET /api/v1/reviews/`
+- `GET /api/v1/reviews/<review_id>`
+- `PUT /api/v1/reviews/<review_id>`
+- `DELETE /api/v1/reviews/<review_id>`
+- `GET /api/v1/places/<place_id>/reviews`
+
+## Special Characteristics
+
+- Only entity supporting DELETE.
+- Must validate:
+  - user_id exists
+  - place_id exists
+  - rating is between 1 and 5
+- Must maintain bidirectional consistency:
+  - Review stored in review_repo
+  - Review added to place.reviews list
+
+---
+
+## DELETE Review Logic
+
+1. Retrieve review
+2. Remove from `review_repo`
+3. Remove from associated `place.reviews`
+4. Return success message
+
+If not removed from place:
+- Data becomes inconsistent.
+- GET place details would still show deleted review.
+
+---
+
+# 🔀 Flow of Execution (End-to-End Example)
+
+## Example: Creating a Review
+
+1. Client sends POST /reviews/
+2. RESTx validates request format.
+3. API calls `facade.create_review(review_data)`.
+4. Facade:
+   - Retrieves User
+   - Retrieves Place
+   - Validates rating
+   - Creates Review object
+   - Stores in review_repo
+   - Calls `place.add_review(review)`
+5. API serializes Review object.
+6. Response returned with 201.
+
+This demonstrates full multi-layer interaction:
+Presentation → Facade → Repository → Model → Repository → Presentation
+
+---
+
+# 🧩 Namespaces (Flask-RESTx)
+
+Namespaces group endpoints logically:
+
+- users
+- places
+- amenities
+- reviews
+
+They are registered in `create_app()` using:
+
+api.add_namespace(namespace, path="/api/v1/...")
+
+Purpose:
+
+- Organize API by resource
+- Structure Swagger documentation
+- Prevent route collisions
+
+---
+
+# 📄 Swagger & Documentation
+
+Flask-RESTx automatically generates Swagger UI:
+
+- Documents endpoints
+- Shows expected JSON body
+- Displays possible response codes
+- Allows interactive testing
+
+Swagger does not contain logic.  
+It reflects what is declared in:
+
+- `api.model`
+- `@api.expect`
+- `@api.response`
+
+---
+
+# ⚠ Common Pitfalls
+
+- Forgetting to register namespace in `create_app`
+- Import errors (missing `api = Namespace(...)`)
+- Not removing review from place when deleting
+- Mixing 400 and 404 incorrectly
+- Forgetting that in-memory repository resets on restart
+- Confusing RESTx validation with business validation
+- Returning inconsistent JSON structures between endpoints
+
+---
+
+# 📦 Final Architecture Summary
+
+Client
+↓
+Flask (routing)
+↓
+Flask-RESTx Resource
+↓
+HBnBFacade
+↓
+Repository
+↓
+Model (validation + relationships)
+
+The architecture enforces:
+
+- Separation of concerns
+- Centralized coordination
+- Scalable persistence layer
+- Clean API documentation
+- Strong data integrity across relationships
+
+---
+
+This completes the Presentation Layer and Service Layer implementation of Part 2.
