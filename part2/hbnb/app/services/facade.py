@@ -144,7 +144,7 @@ class HBnBFacade:
 
         review = Review(
             text=review_data.get("text"),
-            ating=review_data.get("rating"),
+            rating=review_data.get("rating"),
             place=place,
             user=user
         )
