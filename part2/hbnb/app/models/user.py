@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 """
 User model module.
 """
@@ -18,6 +17,7 @@ class User(BaseModel):
         self.last_name = None
         self.email = None
         self.is_admin = False
+        self.password = None
 
         self._validate_and_set_first_name(first_name)
         self._validate_and_set_last_name(last_name)
@@ -50,6 +50,18 @@ class User(BaseModel):
         if not isinstance(value, bool):
             raise ValueError("is_admin must be a boolean")
         self.is_admin = value
+
+    # Receive clear password (ex: user.hash_p("my password"))
+    def hash_password(self, password):
+        """Hashes the password before storing it."""
+        from app import bcrypt # bcrypt available only after app is fully initialized
+        self.password = bcrypt.generate_password_hash(password).decode('utf-8')
+
+    # Compare password used with password saved, directly comparing hashed version
+    def verify_password(self, password):
+        """Verifies if the provided password matches the hashed password."""
+        from app import bcrypt
+        return bcrypt.check_password_hash(self.password, password)
 
     def update(self, data):
         """
