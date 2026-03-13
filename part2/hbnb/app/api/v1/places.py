@@ -1,5 +1,7 @@
 from flask_restx import Namespace, Resource, fields
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.services import facade
+
 
 api = Namespace('places', description='Place operations')
 
@@ -76,19 +78,24 @@ def place_to_dict(place, include_owner=False, include_amenities=False, include_r
 
 @api.route('/')
 class PlaceList(Resource):
+    @jwt_required()
     @api.expect(place_model, validate=True)
     @api.response(201, 'Place successfully created')
     @api.response(400, 'Invalid input data')
     def post(self):
         """Register a new place"""
-        place_data = api.payload
+        place_data = dict(api.payload)
+        current_user = get_jwt_identity()
+
+        place_data["owner_id"] = current_user
+
         try:
             new_place = facade.create_place(place_data)
         except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
-        # Creation response: simple fields + owner_id (example)
         return place_to_dict(new_place, include_owner=False, include_amenities=False), 201
+    
 
     @api.response(200, 'List of places retrieved successfully')
     def get(self):
@@ -118,22 +125,31 @@ class PlaceResource(Resource):
 
         return place_to_dict(place, include_owner=True, include_amenities=True, include_reviews=True), 200
 
+    @jwt_required()
     @api.expect(place_model, validate=True)
     @api.response(200, 'Place updated successfully')
+    @api.response(403, 'Unauthorized action')
     @api.response(404, 'Place not found')
     @api.response(400, 'Invalid input data')
     def put(self, place_id):
         """Update a place's information"""
-        place_data = api.payload
+        current_user = get_jwt_identity()
+        place = facade.get_place(place_id)
+
+        if not place:
+            return {"error": "Place not found"}, 404
+
+        if place.owner.id != current_user:
+            return {"error": "Unauthorized action"}, 403
+
+        place_data = dict(api.payload)
+        place_data["owner_id"] = current_user
+
         try:
             updated = facade.update_place(place_id, place_data)
         except (ValueError, TypeError) as e:
             return {"error": str(e)}, 400
 
-        if not updated:
-            return {"error": "Place not found"}, 404
-
-        # Return updated place (consistent with other endpoints)
         return place_to_dict(updated, include_owner=False, include_amenities=False), 200
     
 #Nested endpoint to get reviews from specific place
