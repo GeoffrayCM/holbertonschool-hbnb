@@ -1,0 +1,158 @@
+ADMIN_TOKEN="PASTE_ADMIN_TOKEN"
+USER_TOKEN="PASTE_USER_TOKEN"
+USER_ID="PASTE_USER_ID"
+PLACE_ID="PASTE_PLACE_ID"
+AMENITY_ID="PASTE_AMENITY_ID"
+REVIEW_ID="PASTE_REVIEW_ID"
+
+1. Login admin
+curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "admin@hbnb.io",
+  "password": "admin1234"
+}'
+
+
+2. Admin crée un user
+curl -X POST http://127.0.0.1:5000/api/v1/users/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "john@test.com",
+  "password": "secret123",
+  "is_admin": false
+}'
+
+
+3. Login user normal
+curl -X POST http://127.0.0.1:5000/api/v1/auth/login \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "john@test.com",
+  "password": "secret123"
+}'
+4. User normal ne peut PAS créer un user
+curl -X POST http://127.0.0.1:5000/api/v1/users/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "first_name": "Hack",
+  "last_name": "User",
+  "email": "hack@test.com",
+  "password": "hack123"
+}'
+
+Attendu → 403
+
+5. Admin modifie un user
+curl -X PUT http://127.0.0.1:5000/api/v1/users/$USER_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "first_name": "Updated",
+  "email": "updated@test.com"
+}'
+6. User normal ne peut PAS modifier un autre user
+curl -X PUT http://127.0.0.1:5000/api/v1/users/$USER_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "first_name": "Hack"
+}'
+
+Attendu → 403
+
+7. Admin crée une amenity
+curl -X POST http://127.0.0.1:5000/api/v1/amenities/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "name": "Swimming Pool"
+}'
+8. User normal ne peut PAS créer une amenity
+curl -X POST http://127.0.0.1:5000/api/v1/amenities/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "name": "Private Spa"
+}'
+
+Attendu → 403
+
+9. Admin modifie une amenity
+curl -X PUT http://127.0.0.1:5000/api/v1/amenities/$AMENITY_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "name": "Updated Pool"
+}'
+10. User normal crée un place
+curl -X POST http://127.0.0.1:5000/api/v1/places/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "title": "Nice Place",
+  "description": "Test place",
+  "price": 100,
+  "latitude": 48.85,
+  "longitude": 2.35,
+  "owner_id": "fake",
+  "amenities": []
+}'
+11. User normal modifie SON place
+curl -X PUT http://127.0.0.1:5000/api/v1/places/$PLACE_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "title": "Updated Place",
+  "price": 120,
+  "latitude": 48.85,
+  "longitude": 2.35,
+  "amenities": []
+}'
+12. Admin modifie le place d’un user
+curl -X PUT http://127.0.0.1:5000/api/v1/places/$PLACE_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "title": "Admin Updated Place",
+  "price": 150,
+  "latitude": 48.85,
+  "longitude": 2.35,
+  "amenities": []
+}'
+13. User normal crée un review
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "text": "Great place",
+  "rating": 5,
+  "place_id": "'"$PLACE_ID"'"
+}'
+14. User normal ne peut PAS review deux fois
+curl -X POST http://127.0.0.1:5000/api/v1/reviews/ \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $USER_TOKEN" \
+-d '{
+  "text": "Second review",
+  "rating": 4,
+  "place_id": "'"$PLACE_ID"'"
+}'
+
+Attendu → 400
+
+15. Admin modifie un review
+curl -X PUT http://127.0.0.1:5000/api/v1/reviews/$REVIEW_ID \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer $ADMIN_TOKEN" \
+-d '{
+  "text": "Admin updated review",
+  "rating": 4
+}'
+16. Admin supprime un review
+curl -X DELETE http://127.0.0.1:5000/api/v1/reviews/$REVIEW_ID \
+-H "Authorization: Bearer $ADMIN_TOKEN"
