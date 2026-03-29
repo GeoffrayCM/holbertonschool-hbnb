@@ -1,498 +1,275 @@
-# 🧠 Business Logic Layer – Core Entities
-
-## 📌 Overview
-
-The Business Logic layer defines the core entities of the HBnB application and enforces the rules that govern their behavior.  
-
-All entities inherit from a common `BaseModel` class, which provides:
-
-- A unique UUID identifier (`id`)
-- Creation timestamp (`created_at`)
-- Update timestamp (`updated_at`)
-- A `save()` method to refresh `updated_at`
-- An `update(data)` method to safely update attributes
-
-The entities implemented in this task are:
-
-- `User`
-- `Place`
-- `Review`
-- `Amenity`
+# 🧱 HBnB — Part 3: Persistence & Authentication
 
 ---
 
-# 🏗 BaseModel
+# 📌 Overview
 
-## Responsibilities
+Part 3 of the HBnB project represents the transition from a conceptual and in-memory application to a **fully persistent and secured backend system**.
 
-- Generate a unique UUID (`str(uuid.uuid4())`)
-- Track object creation and modification time
-- Provide a generic update mechanism
-- Protect critical attributes (`id`, `created_at`, `updated_at`) from modification
+In this phase, the project integrates:
 
-## Core Methods
+- A real relational database via **SQLAlchemy**
+- Secure authentication using **JWT (JSON Web Tokens)**
+- Advanced relationship management between entities
+- Enforcement of business rules at both application and database levels
 
-- `save()` → updates `updated_at`
-- `update(data: dict)` → updates existing attributes safely
+This part completes the backend foundation, making the API **robust, consistent, and production-ready**.
 
 ---
 
-# 👤 User
+# 🏗️ Architecture Evolution
 
-## Attributes
+The layered architecture introduced in Part 2 is preserved and enhanced:
 
-| Attribute | Type | Constraints |
-|------------|--------|------------|
-| id | String | UUID |
-| first_name | String | Required, max 50 characters |
-| last_name | String | Required, max 50 characters |
-| email | String | Required, valid email format |
-| is_admin | Boolean | Default: False |
-| created_at | DateTime | Auto-generated |
-| updated_at | DateTime | Auto-updated |
-
-## Responsibilities
-
-- Validate name length and presence
-- Validate email format using regular expressions
-- Ensure `is_admin` is boolean
-- Handle safe updates via `update()`
-
-## Example Usage
-
-```python
-from app.models.user import User
-
-user = User("John", "Doe", "john.doe@example.com")
-print(user.id)
-print(user.created_at)
-
-user.update({"first_name": "Jane", "is_admin": True})
-print(user.updated_at)
----
 ```
-# 🏠 Place
-
-## Attributes
-
-| Attribute | Type | Constraints |
-|------------|--------|------------|
-| id | String | UUID |
-| title | String | Required, max 100 characters |
-| description | String | Optional |
-| price | Float | Must be positive |
-| latitude | Float | Between -90.0 and 90.0 |
-| longitude | Float | Between -180.0 and 180.0 |
-| owner | User | Must be a User instance |
-| reviews | List | Stores related Review objects |
-| amenities | List | Stores related Amenity objects |
-| created_at | DateTime | Auto-generated |
-| updated_at | DateTime | Auto-updated |
-
-## Responsibilities
-
-- Validate geographic coordinates
-- Validate positive pricing
-- Maintain one-to-many relationship with `Review`
-- Maintain many-to-many relationship with `Amenity`
-- Reference an owning `User`
-
-## Example Usage
-
-```python
-from app.models.user import User
-from app.models.place import Place
-
-owner = User("Alice", "Smith", "alice@example.com")
-
-place = Place(
-    title="Cozy Apartment",
-    description="Nice place",
-    price=100,
-    latitude=37.7749,
-    longitude=-122.4194,
-    owner=owner
-)
-
-print(place.title)
+Presentation Layer (Flask / Flask-RESTx API)
+        ↓
+Business Logic Layer (Facade + Models)
+        ↓
+Persistence Layer (SQLAlchemy Repositories + Database)
 ```
-# ⭐ Review
 
-## Attributes
+### Key Improvements
 
-| Attribute | Type | Constraints |
-|------------|--------|------------|
-| id | String | UUID |
-| text | String | Required |
-| rating | Integer | Between 1 and 5 |
-| place | Place | Must be a Place instance |
-| user | User | Must be a User instance |
-| created_at | DateTime | Auto-generated |
-| updated_at | DateTime | Auto-updated |
-
-## Responsibilities
-
-- Validate rating range (1–5)
-- Validate required text
-- Maintain references to `Place` and `User`
-
-## Example Usage
-
-```python
-from app.models.user import User
-from app.models.place import Place
-from app.models.review import Review
-
-owner = User("Alice", "Smith", "alice@example.com")
-place = Place("Cozy Apartment", "Nice place", 100, 37.7749, -122.4194, owner)
-
-review = Review(
-    text="Great stay!",
-    rating=5,
-    place=place,
-    user=owner
-)
-
-place.add_review(review)
-print(len(place.reviews))  
+- In-memory storage → replaced by **database persistence**
+- Open endpoints → secured with **JWT authentication**
+- Basic entities → enriched with **real relationships**
 
 ---
-```
-# 🛎 Amenity
 
-## Attributes
+# 🗄️ Database Integration (SQLAlchemy)
 
-| Attribute | Type | Constraints |
-|------------|--------|------------|
-| id | String | UUID |
-| name | String | Required, max 50 characters |
-| created_at | DateTime | Auto-generated |
-| updated_at | DateTime | Auto-updated |
+## ORM Mapping
 
-## Responsibilities
+Each business entity is mapped to a database table:
 
-- Validate that `name` is a non-empty string
-- Enforce maximum length (50 characters)
-- Allow association with `Place` (many-to-many simplified via list storage)
+| Entity   | Table       |
+|----------|------------|
+| User     | users      |
+| Place    | places     |
+| Review   | reviews    |
+| Amenity  | amenities  |
 
-## Example Usage
+---
+
+## Relationships Implemented
+
+### 🔹 User ↔ Place
+- One-to-Many
+- A user can own multiple places
 
 ```python
-from app.models.user import User
-from app.models.place import Place
-from app.models.amenity import Amenity
-
-owner = User("Alice", "Smith", "alice@example.com")
-place = Place("Cozy Apartment", "Nice place", 100, 37.7749, -122.4194, owner)
-
-wifi = Amenity("Wi-Fi")
-parking = Amenity("Parking")
-
-place.add_amenity(wifi)
-place.add_amenity(parking)
-
-print([a.name for a in place.amenities])  # ["Wi-Fi", "Parking"]
+user_id = db.Column(db.String(36), db.ForeignKey("users.id"))
+owner = db.relationship("User", backref="places")
 ```
 
 ---
 
-# 🌐 Presentation Layer & Facade – API Endpoints
-
-## 📌 Overview
-
-After implementing the Business Logic layer (Models), the second major step of Part 2 consists of exposing this logic through a RESTful API using **Flask** and **Flask-RESTx**, while ensuring clean separation of concerns.
-
-This is achieved through:
-
-- A **Facade layer** that centralizes all business interactions.
-- A **Presentation layer (API)** that handles HTTP requests and responses.
-- A structured use of **Namespaces**, **Resources**, and **Models** in Flask-RESTx.
-- Consistent HTTP status codes and JSON responses.
-
-The API does **not** interact directly with the models or repositories.  
-All communication goes through the `HBnBFacade`.
+### 🔹 User ↔ Review
+- One-to-Many
+- A user can write multiple reviews
 
 ---
 
-# 🏛 HBnBFacade (Service Layer)
-
-## 🎯 Role
-
-The `HBnBFacade` class acts as a mediator between:
-
-- The API (Presentation Layer)
-- The Business Logic (Models)
-- The Persistence Layer (Repository)
-
-It:
-
-- Creates entities
-- Retrieves entities
-- Updates entities
-- Deletes reviews
-- Validates relationships (User ↔ Place ↔ Review ↔ Amenity)
-- Ensures data integrity before persistence
-
-The facade holds repository instances:
-
-- `user_repo`
-- `place_repo`
-- `amenity_repo`
-- `review_repo`
-
-Each repository is an instance of `InMemoryRepository`.
+### 🔹 Place ↔ Review
+- One-to-Many
+- A place can have multiple reviews
 
 ---
 
-## 🔁 Why Use a Facade?
+### 🔹 Place ↔ Amenity
+- Many-to-Many
+- Implemented via association table:
 
-Without the facade:
-
-- The API would directly manipulate repositories.
-- Validation logic would be duplicated.
-- Relations would be inconsistently handled.
-
-With the facade:
-
-- All coordination logic is centralized.
-- The API remains clean and focused on HTTP handling.
-- The persistence layer can be replaced later without changing the API.
+```python
+place_amenity = db.Table(...)
+```
 
 ---
 
-# 👤 User Endpoints
+## Key Concepts Introduced
 
-## Implemented Endpoints
-
-- `POST /api/v1/users/`
-- `GET /api/v1/users/`
-- `GET /api/v1/users/<user_id>`
-- `PUT /api/v1/users/<user_id>`
-
-## Responsibilities
-
-### POST
-- Validate request body via RESTx
-- Check email uniqueness
-- Call `facade.create_user()`
-- Return `201 Created`
-
-### GET (list)
-- Call `facade.get_users()`
-- Return list of serialized users
-
-### GET (by id)
-- Call `facade.get_user(user_id)`
-- Return `404` if not found
-
-### PUT
-- Validate existence
-- Call `facade.update_user()`
-- Return updated user
+- `db.Column`, `db.ForeignKey`
+- `db.relationship`
+- Association tables (Many-to-Many)
+- Lazy loading strategies
+- ORM ↔ SQL abstraction
 
 ---
 
-# 🛎 Amenity Endpoints
+# 🔐 Authentication (JWT)
 
-## Implemented Endpoints
+## Implementation
 
-- `POST /api/v1/amenities/`
-- `GET /api/v1/amenities/`
-- `GET /api/v1/amenities/<amenity_id>`
-- `PUT /api/v1/amenities/<amenity_id>`
+Authentication is handled using:
 
-## Differences Compared to User
+- `flask-jwt-extended`
 
-- No uniqueness constraint required.
-- Simpler entity (no direct relationship validation here).
-- Used later by Place for many-to-many relationship.
+## Features
 
----
-
-# 🏠 Place Endpoints
-
-## Implemented Endpoints
-
-- `POST /api/v1/places/`
-- `GET /api/v1/places/`
-- `GET /api/v1/places/<place_id>`
-- `PUT /api/v1/places/<place_id>`
-
-## Special Logic for Place
-
-Place introduces relationships:
-
-- One-to-many: User → Places
-- Many-to-many: Place ↔ Amenities
-- One-to-many: Place → Reviews
-
-### POST Place
-
-Requires:
-
-- owner_id (must exist)
-- amenities (list of amenity IDs)
-
-Facade responsibilities:
-
-1. Retrieve owner via `user_repo`
-2. Retrieve amenities via `amenity_repo`
-3. Validate price, latitude, longitude
-4. Create Place object
-5. Attach amenities
-6. Store in `place_repo`
-
-Returns `201 Created`.
+- Login endpoint (`/auth/login`)
+- JWT token generation
+- Token-based request protection
+- Role-based access control
 
 ---
 
-### GET Place (detail)
+## Roles
 
-Returns enriched data:
+### 👑 Admin
+- Can create users
+- Has full privileges
 
-- Basic fields
-- Owner object (nested)
-- Amenities list (nested)
-- Reviews list (nested)
-
-Requires custom serialization logic.
-
----
-
-# ⭐ Review Endpoints
-
-Review is the most complex entity in Part 2.
-
-## Implemented Endpoints
-
-- `POST /api/v1/reviews/`
-- `GET /api/v1/reviews/`
-- `GET /api/v1/reviews/<review_id>`
-- `PUT /api/v1/reviews/<review_id>`
-- `DELETE /api/v1/reviews/<review_id>`
-- `GET /api/v1/places/<place_id>/reviews`
-
-## Special Characteristics
-
-- Only entity supporting DELETE.
-- Must validate:
-  - user_id exists
-  - place_id exists
-  - rating is between 1 and 5
-- Must maintain bidirectional consistency:
-  - Review stored in review_repo
-  - Review added to place.reviews list
+### 👤 Normal User
+- Can update own profile (restricted fields)
+- Can create places
+- Can create reviews (with rules)
 
 ---
 
-## DELETE Review Logic
+## Protected Endpoints
 
-1. Retrieve review
-2. Remove from `review_repo`
-3. Remove from associated `place.reviews`
-4. Return success message
+Example:
 
-If not removed from place:
-- Data becomes inconsistent.
-- GET place details would still show deleted review.
+```python
+@jwt_required()
+def post(self):
+```
 
 ---
 
-# 🔀 Flow of Execution (End-to-End Example)
+# 🧠 Business Rules Enforced
 
-## Example: Creating a Review
+## Application-Level Rules
 
-1. Client sends POST /reviews/
-2. RESTx validates request format.
-3. API calls `facade.create_review(review_data)`.
-4. Facade:
-   - Retrieves User
-   - Retrieves Place
-   - Validates rating
-   - Creates Review object
-   - Stores in review_repo
-   - Calls `place.add_review(review)`
-5. API serializes Review object.
-6. Response returned with 201.
-
-This demonstrates full multi-layer interaction:
-Presentation → Facade → Repository → Model → Repository → Presentation
+- A user cannot review their own place
+- A user cannot review the same place twice
+- Only admin can create users
+- Users cannot modify restricted fields
 
 ---
 
-# 🧩 Namespaces (Flask-RESTx)
+## Database-Level Constraints
 
-Namespaces group endpoints logically:
-
-- users
-- places
-- amenities
-- reviews
-
-They are registered in `create_app()` using:
-
-api.add_namespace(namespace, path="/api/v1/...")
-
-Purpose:
-
-- Organize API by resource
-- Structure Swagger documentation
-- Prevent route collisions
+- `email` is UNIQUE
+- `(user_id, place_id)` UNIQUE in reviews
+- Rating must be between 1 and 5
+- Foreign key constraints ensure integrity
 
 ---
 
-# 📄 Swagger & Documentation
+# 🧾 SQL Scripts (Understanding the Database)
 
-Flask-RESTx automatically generates Swagger UI:
+Even though SQLAlchemy manages the database, raw SQL scripts were created to:
 
-- Documents endpoints
-- Shows expected JSON body
-- Displays possible response codes
-- Allows interactive testing
+- Reproduce the schema manually
+- Understand ORM internals
+- Validate constraints independently
 
-Swagger does not contain logic.  
-It reflects what is declared in:
+## Files
 
-- `api.model`
-- `@api.expect`
-- `@api.response`
+- `schema.sql` → table creation
+- `seed.sql` → initial data
+- `test_queries.sql` → manual testing
 
 ---
 
-# ⚠ Common Pitfalls
+# 🧪 Testing Strategy
 
-- Forgetting to register namespace in `create_app`
-- Import errors (missing `api = Namespace(...)`)
-- Not removing review from place when deleting
-- Mixing 400 and 404 incorrectly
-- Forgetting that in-memory repository resets on restart
-- Confusing RESTx validation with business validation
-- Returning inconsistent JSON structures between endpoints
+## 1. Automated Script
 
----
-
-# 📦 Final Architecture Summary
-
-Client
-↓
-Flask (routing)
-↓
-Flask-RESTx Resource
-↓
-HBnBFacade
-↓
-Repository
-↓
-Model (validation + relationships)
-
-The architecture enforces:
-
-- Separation of concerns
-- Centralized coordination
-- Scalable persistence layer
-- Clean API documentation
-- Strong data integrity across relationships
+- `test_relations.py`
+- Validates:
+  - entity creation
+  - relationships
+  - constraints
 
 ---
 
-This completes the Presentation Layer and Service Layer implementation of Part 2.
+## 2. Swagger Testing
+
+- Interactive API testing
+- JWT token integration
+- Quick validation of endpoints
+
+---
+
+## 3. cURL Testing
+
+- Full manual control
+- Useful for debugging and scripting
+
+---
+
+## Tested Features
+
+- Authentication flow
+- CRUD operations
+- Relationship consistency
+- Constraint enforcement
+
+---
+
+# 🔁 End-to-End Flow Example
+
+1. Admin logs in → gets token
+2. Admin creates users
+3. Users log in
+4. User creates a place
+5. Amenities are linked
+6. Another user creates a review
+7. API returns:
+   - place with owner
+   - amenities
+   - reviews
+
+---
+
+# 🧩 Design Patterns Used
+
+## Repository Pattern
+- Abstracts database access
+- Clean separation of persistence logic
+
+## Facade Pattern
+- Central entry point for business logic
+- Simplifies API layer interactions
+
+---
+
+# 🚀 What Part 3 Achieves
+
+- Real database persistence
+- Secure authentication system
+- Full relationship modeling
+- Strong data integrity guarantees
+- Production-ready API foundation
+
+---
+
+# 📊 Summary
+
+| Feature                  | Status |
+|-------------------------|--------|
+| SQLAlchemy integration  | ✅ |
+| JWT authentication      | ✅ |
+| Role management         | ✅ |
+| Relationships           | ✅ |
+| Business rules          | ✅ |
+| SQL schema scripts      | ✅ |
+| API testing             | ✅ |
+
+---
+
+# 🎯 Conclusion
+
+Part 3 transforms HBnB into a **complete backend system**:
+
+- Structured
+- Secure
+- Scalable
+- Maintainable
+
+It bridges the gap between **architecture (Part 1 & 2)** and **real-world backend implementation**, preparing the project for further extensions such as frontend integration or deployment.
+
+---
