@@ -22,17 +22,11 @@ user_update_model = api.model('UserUpdate', {
 @api.route('/')
 class UserList(Resource):
     @api.expect(user_model, validate=True)
-    @api.doc(security='Bearer')
     @api.response(201, 'User successfully created')
     @api.response(400, 'Email already registered')
-    @api.response(403, 'Admin privileges required')
     @api.response(400, 'Invalid input data')
-    @jwt_required()
     def post(self):
-        """Register a new user (ADMIN ONLY)"""
-        if not is_admin():
-            return {'error': 'Admin privileges required'}, 403
-        
+        """Register a new user"""
         user_data = dict(api.payload)
 
         existing_user = facade.get_user_by_email(user_data['email'])
