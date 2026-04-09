@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_restx import Api
 from app.services import facade
 
@@ -20,6 +21,7 @@ authorizations = {
 
 def create_app(config_class="config.DevelopmentConfig"):
     app = Flask(__name__)
+    CORS(app)
     app.config.from_object(config_class)
 
     # Flask-JWT-Extended waits for a signature key

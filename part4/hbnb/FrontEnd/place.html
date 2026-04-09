@@ -8,22 +8,19 @@
 </head>
 <body>
     <main>
-        <section id="place-details">
-            <!-- Place details will be populated dynamically -->
-        </section>
-        <section id="reviews">
-            <!-- Reviews will be populated dynamically -->
-        </section>
-        <section id="add-review">
-            <h2>Add a Review</h2>
-            <form id="review-form">
-                <label for="review-text">Review:</label>
-                <textarea id="review-text" name="review-text" required></textarea>
-                
-                <button type="submit">Submit</button>
-            </form>
-        </section>
-    </main>
+    <div id="place-details">
+        <p>Chargement des détails du lieu...</p>
+    </div>
+
+    <div id="add-review" style="display: none; margin-top: 20px; padding: 15px; border-top: 1px solid #ccc;">
+        <h3>Ajouter un avis</h3>
+        <form id="review-form">
+            <textarea id="review-text" placeholder="Écrivez votre avis ici..." rows="4" style="width: 100%;" required></textarea>
+            <br>
+            <button type="submit" style="margin-top: 10px;">Envoyer l'avis</button>
+        </form>
+    </div>
+</main>
     <script src="scripts.js"></script>
 </body>
 </html>
