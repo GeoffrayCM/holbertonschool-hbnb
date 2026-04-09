@@ -52,8 +52,58 @@ document.addEventListener('DOMContentLoaded', () => {
             placeDetailsContainer.innerHTML = "<p>Erreur : Aucun ID de lieu spécifié dans l'URL.</p>";
         }
     }
-});
 
+    // ==========================================
+    // 4. PARTIE ADD REVIEW (Page add_review.html - Task 4)
+    // ==========================================
+    if (window.location.pathname.includes('add_review.html')) {
+        const token = getCookie('token');
+        
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        const reviewForm = document.getElementById('review-form');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (event) => {
+                event.preventDefault(); 
+                
+                const placeId = getPlaceIdFromURL();
+                const reviewText = document.getElementById('review-text').value;
+                const ratingValue = document.getElementById('rating').value; // On récupère la note !
+
+                try {
+                    // ON CHANGE L'URL ICI pour correspondre à ton backend reviews.py
+                    const response = await fetch(`http://127.0.0.1:5000/api/v1/reviews/`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        // ON AJOUTE place_id et rating dans le body
+                        body: JSON.stringify({ 
+                            place_id: placeId,
+                            text: reviewText,
+                            rating: parseInt(ratingValue) 
+                        })
+                    });
+
+                    if (response.ok) {
+                        alert('Review submitted successfully!');
+                        window.location.href = `place.html?id=${placeId}`;
+                    } else {
+                        const errorData = await response.json();
+                        alert("Erreur lors de l'envoi : " + (errorData.message || errorData.error || response.statusText));
+                    }
+                } catch (error) {
+                    console.error('Erreur Fetch:', error);
+                    alert('Erreur de connexion au serveur.');
+                }
+            });
+        }
+    }
+    
+});
 
 // ==========================================
 // OUTILS COMMUNS
@@ -156,18 +206,18 @@ function getPlaceIdFromURL() {
 function checkPlaceAuthentication(placeId) {
     const token = getCookie('token');
     const addReviewSection = document.getElementById('add-review');
-    const loginLink = document.getElementById('login-link');
 
-    // Gestion de l'affichage si connecté ou non
-    if (!token) {
-        if (addReviewSection) addReviewSection.style.display = 'none';
-        if (loginLink) loginLink.style.display = 'block';
+    console.log("Token trouvé :", token ? "OUI" : "NON"); // Pour debug
+    console.log("Section add-review trouvée :", addReviewSection ? "OUI" : "NON");
+
+    if (token && addReviewSection) {
+        console.log("Affichage du bouton Ajouter un avis...");
+        addReviewSection.style.setProperty('display', 'block', 'important');
     } else {
-        if (addReviewSection) addReviewSection.style.display = 'block';
-        if (loginLink) loginLink.style.display = 'none';
+        console.log("Bouton caché : pas de token ou section introuvable.");
+        if (addReviewSection) addReviewSection.style.display = 'none';
     }
 
-    // Récupération des données du lieu
     fetchPlaceDetails(token, placeId);
 }
 
@@ -222,5 +272,25 @@ function displayPlaceDetails(place) {
             ${reviewsHTML}
         </div>
     `;
+   
+    // --- FIN DE LA FONCTION displayPlaceDetails ---
+    const addReviewSection = document.getElementById('add-review');
+    const addReviewLink = document.getElementById('add-review-link');
+    const token = getCookie('token');
+
+    if (addReviewSection && addReviewLink && place.id) {
+        // On prépare le lien avec l'ID
+        addReviewLink.href = `add_review.html?id=${place.id}`;
+        
+        // Si le token existe, on FORCE l'affichage
+        if (token) {
+            addReviewSection.style.display = 'block';
+            console.log("Bouton affiché pour le lieu :", place.id);
+        } else {
+            console.log("Token manquant, bouton caché.");
+        }
+    }
 }
+    
+
     

@@ -8,15 +8,21 @@
 </head>
 <body>
     <main>
-        <!-- Add something to idfentify the place you're reviewing -->
         <form id="review-form">
             <h2>Add a Review</h2>
-            <label for="review">Your Review:</label>
-            <textarea id="review" name="review" required></textarea>
+            <label for="review-text">Your Review:</label>
+            <textarea id="review-text" name="review" required></textarea>
+            
             <label for="rating">Rating:</label>
-            <select id="rating" name="rating" required>
-                <!-- Options for rating -->
+            <select id="rating" name="rating" required style="margin-bottom: 15px; padding: 5px;">
+                <option value="" disabled selected>Choisissez une note...</option>
+                <option value="1">1 Étoile</option>
+                <option value="2">2 Étoiles</option>
+                <option value="3">3 Étoiles</option>
+                <option value="4">4 Étoiles</option>
+                <option value="5">5 Étoiles</option>
             </select>
+            
             <button type="submit">Submit Review</button>
         </form>
     </main>

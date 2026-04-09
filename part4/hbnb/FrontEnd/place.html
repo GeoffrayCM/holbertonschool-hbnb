@@ -7,20 +7,23 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <main>
-    <div id="place-details">
-        <p>Chargement des détails du lieu...</p>
-    </div>
+    <header>
+        <nav>
+            <a href="index.html">Home</a>
+            <a href="login.html" id="login-link">Login</a>
+        </nav>
+    </header>
 
-    <div id="add-review" style="display: none; margin-top: 20px; padding: 15px; border-top: 1px solid #ccc;">
-        <h3>Ajouter un avis</h3>
-        <form id="review-form">
-            <textarea id="review-text" placeholder="Écrivez votre avis ici..." rows="4" style="width: 100%;" required></textarea>
-            <br>
-            <button type="submit" style="margin-top: 10px;">Envoyer l'avis</button>
-        </form>
-    </div>
-</main>
+    <main>
+        <div id="place-details">
+            <p>Chargement des détails du lieu...</p>
+        </div>
+
+        <div id="add-review" style="display: none; margin-top: 20px;">
+            <a id="add-review-link" href="#" style="padding: 10px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Ajouter un avis</a>
+        </div>
+    </main>
+
     <script src="scripts.js"></script>
 </body>
 </html>
