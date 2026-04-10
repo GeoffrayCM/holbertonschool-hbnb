@@ -170,6 +170,11 @@ class PlaceReviewList(Resource):
             return {"error": "Place not found"}, 404
 
         return [
-            {"id": r.id, "text": r.text, "rating": r.rating}
-            for r in reviews
-        ], 200
+    {
+        "id": r.id,
+        "text": r.text,
+        "rating": r.rating,
+        "user_name": r.user.first_name + " " + r.user.last_name if r.user else "Anonyme"
+    }
+    for r in reviews
+], 200

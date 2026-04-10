@@ -1,31 +1,102 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Review</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HBnB — Add a Review</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-    <main>
-        <form id="review-form">
-            <h2>Add a Review</h2>
-            <label for="review-text">Your Review:</label>
-            <textarea id="review-text" name="review" required></textarea>
-            
-            <label for="rating">Rating:</label>
-            <select id="rating" name="rating" required style="margin-bottom: 15px; padding: 5px;">
-                <option value="" disabled selected>Choisissez une note...</option>
-                <option value="1">1 Étoile</option>
-                <option value="2">2 Étoiles</option>
-                <option value="3">3 Étoiles</option>
-                <option value="4">4 Étoiles</option>
-                <option value="5">5 Étoiles</option>
-            </select>
-            
-            <button type="submit">Submit Review</button>
+ 
+  <!-- ── Header ── -->
+  <header>
+    <div class="header-inner">
+      <a href="index.html"><img src="logo.png" alt="HBnB" class="logo" style="height:38px;width:auto;object-fit:contain;filter:invert(1);" /></a>
+      <nav>
+        <a href="index.html">Explore</a>
+        <a href="login.html" class="login-button">Login</a>
+      </nav>
+    </div>
+  </header>
+ 
+  <!-- ── Main ── -->
+  <main>
+ 
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="index.html">Explore</a>
+      <span>›</span>
+      <a href="place.html">Sunset Villa</a>
+      <span>›</span>
+      <span>Add Review</span>
+    </nav>
+ 
+    <div class="review-form-wrapper">
+      <h1>Share Your Experience</h1>
+      <p class="subtitle">Your honest feedback helps other travellers make great choices.</p>
+ 
+      <div class="review-form-card">
+        <form class="add-review form" action="#" method="get" novalidate>
+ 
+          <div class="form-group">
+            <label for="reviewer-name">Your name</label>
+            <input
+              type="text"
+              id="reviewer-name"
+              name="reviewer-name"
+              placeholder="e.g. Jane Doe"
+              autocomplete="name"
+              required
+            />
+          </div>
+ 
+          <div class="form-group">
+            <label>Rating</label>
+            <div class="star-rating" id="rating" role="group" aria-label="Star rating">
+              <input type="radio" id="star5" name="rating" value="5" required />
+              <label for="star5" title="5 stars">&#9733;</label>
+ 
+              <input type="radio" id="star4" name="rating" value="4" />
+              <label for="star4" title="4 stars">&#9733;</label>
+ 
+              <input type="radio" id="star3" name="rating" value="3" />
+              <label for="star3" title="3 stars">&#9733;</label>
+ 
+              <input type="radio" id="star2" name="rating" value="2" />
+              <label for="star2" title="2 stars">&#9733;</label>
+ 
+              <input type="radio" id="star1" name="rating" value="1" />
+              <label for="star1" title="1 star">&#9733;</label>
+            </div>
+          </div>
+ 
+          <div class="form-group">
+            <label for="comment">Your review</label>
+            <textarea
+              id="comment"
+              name="comment"
+              placeholder="Tell us about your stay — what did you love? Anything to be aware of?"
+              required
+            ></textarea>
+          </div>
+ 
+          <p id="review-error" style="color:var(--accent);font-size:.85rem;min-height:1.2em;"></p>
+          <button type="submit" class="form-submit">Submit Review</button>
+ 
         </form>
-    </main>
-    <script src="scripts.js"></script>
+      </div>
+ 
+      <p class="form-footer">
+        Changed your mind? <a href="place.html">Back to the place</a>
+      </p>
+    </div>
+ 
+  </main>
+ 
+  <footer>
+    <p>&copy; 2024 <strong>HBnB</strong> — All rights reserved.</p>
+  </footer>
+  <script src="scripts.js"></script>
 </body>
 </html>

@@ -1,32 +1,618 @@
-/* 
-  This is a SAMPLE File to get you started. Follow the instructions on the project to complete the tasks. 
-  You'll probably need to override some of theese styles.
-*/
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+/* ============================================================
+   HBnB — Luxury Travel Aesthetic
+   Color Palette: Warm ivory, deep slate, terracotta accent
+   Font: Playfair Display (headings) + DM Sans (body)
+   ============================================================ */
+ 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
+ 
+/* ── CSS Variables ── */
+:root {
+  --bg:          #FAF8F5;
+  --bg-card:     #FFFFFF;
+  --bg-dark:     #1C2733;
+  --text:        #1C2733;
+  --text-muted:  #7A8494;
+  --accent:      #C96A3A;
+  --accent-soft: #F2E6DF;
+  --border:      #E8E3DC;
+  --shadow-sm:   0 2px 8px rgba(28,39,51,.06);
+  --shadow-md:   0 8px 32px rgba(28,39,51,.12);
+  --shadow-lg:   0 20px 60px rgba(28,39,51,.18);
+  --radius:      10px;
+  --radius-lg:   18px;
+  --font-head:   'Playfair Display', Georgia, serif;
+  --font-body:   'DM Sans', sans-serif;
+  --transition:  .25s cubic-bezier(.4,0,.2,1);
 }
-
+ 
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+ 
 body {
-    background-color: #f4f4f4;
-    color: #333;
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-
+ 
+a { text-decoration: none; color: inherit; }
+ul { list-style: none; }
+img { max-width: 100%; display: block; }
+ 
+/* ── Header ── */
 header {
-    background-color: #333;
-    color: #fff;
-    padding: 1rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-sm);
 }
-
+ 
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+ 
+.logo {
+  height: 42px;
+  width: auto;
+  object-fit: contain;
+}
+ 
+.logo-text {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -.5px;
+}
+ 
+.logo-text span { color: var(--accent); }
+ 
+nav { display: flex; align-items: center; gap: 2rem; }
+ 
 nav a {
-    color: #fff;
-    text-decoration: none;
-    margin-left: 1rem;
+  font-size: .9rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color var(--transition);
+  letter-spacing: .02em;
 }
-
+ 
+nav a:hover, nav a.active { color: var(--text); }
+ 
+.login-button {
+  background: var(--accent);
+  color: #fff !important;
+  padding: .55rem 1.4rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: .85rem;
+  letter-spacing: .03em;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+ 
+.login-button:hover {
+  background: #b05830;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201,106,58,.35);
+}
+ 
+/* ── Hero Banner (index) ── */
+.hero {
+  background: linear-gradient(135deg, var(--bg-dark) 0%, #2d3f52 100%);
+  color: #fff;
+  text-align: center;
+  padding: 5rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+}
+ 
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 70% 50%, rgba(201,106,58,.18) 0%, transparent 65%);
+}
+ 
+.hero h1 {
+  font-family: var(--font-head);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  line-height: 1.15;
+  position: relative;
+  z-index: 1;
+}
+ 
+.hero p {
+  font-size: 1.1rem;
+  color: rgba(255,255,255,.72);
+  margin-top: .8rem;
+  position: relative;
+  z-index: 1;
+}
+ 
+/* ── Filter Bar ── */
+.filter-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 1.2rem 2rem;
+}
+ 
+.filter-bar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+ 
+.filter-bar label {
+  font-size: .85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+ 
+.filter-bar select {
+  font-family: var(--font-body);
+  font-size: .9rem;
+  padding: .5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color var(--transition);
+  outline: none;
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A8494' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right .8rem center;
+}
+ 
+.filter-bar select:focus { border-color: var(--accent); }
+ 
+/* ── Main Content ── */
 main {
-    padding: 2rem;
+  flex: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 3rem 2rem;
+  width: 100%;
+}
+ 
+/* ── Section Title ── */
+.section-title {
+  font-family: var(--font-head);
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+  color: var(--text);
+}
+ 
+/* ── Place Cards Grid ── */
+.places-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+ 
+/* ── Place Card ── */
+.place-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin: 20px;
+  padding: 10px;
+  overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition);
+  position: relative;
+}
+ 
+.place-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+ 
+.place-card-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: calc(var(--radius) - 2px) calc(var(--radius) - 2px) 0 0;
+  margin: -10px -10px 10px -10px;
+  width: calc(100% + 20px);
+}
+ 
+.place-card-body { padding: .4rem .6rem .6rem; }
+ 
+.place-card h3 {
+  font-family: var(--font-head);
+  font-size: 1.15rem;
+  font-weight: 600;
+  margin-bottom: .3rem;
+}
+ 
+.place-card .price {
+  font-size: .9rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: .8rem;
+}
+ 
+.place-card .price span { color: var(--text-muted); font-weight: 400; font-size: .82rem; }
+ 
+.details-button {
+  display: inline-block;
+  background: var(--text);
+  color: #fff;
+  padding: .5rem 1.2rem;
+  border-radius: 50px;
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .03em;
+  transition: background var(--transition), transform var(--transition);
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+ 
+.details-button:hover {
+  background: var(--accent);
+  transform: translateY(-1px);
+}
+ 
+/* ── Place Details Page ── */
+.place-details {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 2.5rem;
+}
+ 
+.place-details-hero {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+ 
+.place-info {
+  padding: 2.5rem;
+}
+ 
+.place-info h1 {
+  font-family: var(--font-head);
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: .5rem;
+}
+ 
+.place-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin: 1.2rem 0;
+  padding: 1.2rem 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+ 
+.place-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+}
+ 
+.place-meta-item .label {
+  font-size: .75rem;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+ 
+.place-meta-item .value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text);
+}
+ 
+.place-meta-item .value.price { color: var(--accent); font-size: 1.2rem; }
+ 
+.place-description {
+  color: var(--text-muted);
+  font-size: .97rem;
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+ 
+.amenities-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  margin-bottom: .8rem;
+}
+ 
+.amenities-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+ 
+.amenity-tag {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: .35rem .9rem;
+  border-radius: 50px;
+  font-size: .8rem;
+  font-weight: 600;
+}
+ 
+/* ── Reviews Section ── */
+.reviews-section { margin-bottom: 2.5rem; }
+ 
+.reviews-section h2 {
+  font-family: var(--font-head);
+  font-size: 1.6rem;
+  margin-bottom: 1.5rem;
+}
+ 
+.review-card {
+  background: var(--bg-card);
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  margin: 20px;
+  padding: 10px;
+  transition: box-shadow var(--transition);
+}
+ 
+.review-card:hover { box-shadow: var(--shadow-sm); }
+ 
+.review-card-inner { padding: .8rem .6rem .6rem; }
+ 
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: .6rem;
+}
+ 
+.reviewer-name {
+  font-weight: 600;
+  font-size: .95rem;
+}
+ 
+.review-rating {
+  color: var(--accent);
+  font-size: .9rem;
+  font-weight: 700;
+  letter-spacing: .05em;
+}
+ 
+.review-comment {
+  font-size: .9rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+ 
+/* ── Add Review Button (on place page) ── */
+.add-review-btn {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  padding: .75rem 2rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: .95rem;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  margin-bottom: 2rem;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+ 
+.add-review-btn:hover {
+  background: #b05830;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201,106,58,.3);
+}
+ 
+/* ── Auth Forms (Login & Add Review) ── */
+.auth-wrapper {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+ 
+.auth-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 3rem 2.5rem;
+  width: 100%;
+  max-width: 440px;
+}
+ 
+.auth-card h1 {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: .4rem;
+}
+ 
+.auth-card .subtitle {
+  color: var(--text-muted);
+  font-size: .9rem;
+  margin-bottom: 2rem;
+}
+ 
+/* ── Forms ── */
+.form { display: flex; flex-direction: column; gap: 1.2rem; }
+ 
+.form-group { display: flex; flex-direction: column; gap: .4rem; }
+ 
+.form-group label {
+  font-size: .82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+ 
+.form-group input,
+.form-group textarea,
+.form-group select {
+  font-family: var(--font-body);
+  font-size: .95rem;
+  padding: .75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  width: 100%;
+}
+ 
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(201,106,58,.12);
+}
+ 
+.form-group textarea { resize: vertical; min-height: 120px; }
+ 
+.form-submit {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 50px;
+  padding: .85rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font-body);
+  letter-spacing: .03em;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  margin-top: .5rem;
+}
+ 
+.form-submit:hover {
+  background: #b05830;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(201,106,58,.35);
+}
+ 
+.form-footer {
+  text-align: center;
+  font-size: .85rem;
+  color: var(--text-muted);
+  margin-top: 1rem;
+}
+ 
+.form-footer a { color: var(--accent); font-weight: 600; }
+ 
+/* ── Add Review Page ── */
+.review-form-wrapper {
+  max-width: 640px;
+  margin: 0 auto;
+}
+ 
+.review-form-wrapper h1 {
+  font-family: var(--font-head);
+  font-size: 2rem;
+  margin-bottom: .4rem;
+}
+ 
+.review-form-wrapper .subtitle {
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+  font-size: .9rem;
+}
+ 
+.review-form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-sm);
+}
+ 
+.add-review { width: 100%; }
+ 
+.star-rating { display: flex; gap: .4rem; flex-direction: row-reverse; justify-content: flex-end; }
+ 
+.star-rating input { display: none; }
+ 
+.star-rating label {
+  font-size: 1.8rem;
+  color: var(--border);
+  cursor: pointer;
+  transition: color var(--transition);
+  text-transform: none;
+  letter-spacing: 0;
+}
+ 
+.star-rating input:checked ~ label,
+.star-rating label:hover,
+.star-rating label:hover ~ label { color: var(--accent); }
+ 
+/* ── Footer ── */
+footer {
+  background: var(--bg-dark);
+  color: rgba(255,255,255,.55);
+  text-align: center;
+  padding: 2rem;
+  font-size: .82rem;
+  letter-spacing: .03em;
+  margin-top: auto;
+}
+ 
+footer strong { color: rgba(255,255,255,.85); }
+ 
+/* ── Breadcrumb ── */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: .82rem;
+  color: var(--text-muted);
+  margin-bottom: 2rem;
+}
+ 
+.breadcrumb a { color: var(--accent); }
+.breadcrumb span { color: var(--border); }
+ 
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .header-inner { padding: 0 1rem; }
+  main { padding: 2rem 1rem; }
+  .places-grid { grid-template-columns: 1fr; }
+  .place-card { margin: 12px; }
+  .review-card { margin: 12px; }
+  .place-info { padding: 1.5rem; }
+  .auth-card { padding: 2rem 1.5rem; }
+  .hero { padding: 3rem 1rem 2.5rem; }
 }
