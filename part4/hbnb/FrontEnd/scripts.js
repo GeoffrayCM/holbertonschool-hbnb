@@ -99,7 +99,7 @@ async function loadPlaces(grid, priceFilter) {
         '<div class="place-card-body">' +
           '<h3>' + name + '</h3>' +
           '<p class="price" id="price-' + id + '">...</p>' +
-          '<a href="place.html?id=' + id + '" class="details-button">View Details</a>' +
+          '<a href="place.html?id=' + id + '&img=' + (i % IMAGES.length) + '" class="details-button">View Details</a>' +
         '</div>';
       grid.appendChild(article);
       fetch(API + '/places/' + id)
@@ -134,7 +134,8 @@ function initPlacePage() {
   var params  = new URLSearchParams(window.location.search);
   var placeId = params.get('id');
   if (!placeId) return;
-  loadPlaceDetails(placeId);
+  var imgIndex = parseInt(params.get('img') || '0');
+  loadPlaceDetails(placeId, imgIndex);
   loadReviews(placeId);
   var reviewBtn = document.querySelector('.add-review-btn');
   if (reviewBtn) {
@@ -147,7 +148,9 @@ function initPlacePage() {
   }
 }
 
-async function loadPlaceDetails(placeId) {
+async function loadPlaceDetails(placeId, imgIndex) {
+  var heroImg = document.querySelector('.place-details-hero');
+  if (heroImg && IMAGES[imgIndex]) heroImg.src = IMAGES[imgIndex];
   var infoEl = document.querySelector('.place-info');
   if (!infoEl) return;
   try {
